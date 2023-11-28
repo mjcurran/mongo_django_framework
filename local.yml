@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: django_radiohound
+    image: django_app
     command: /start
     volumes:
       - .:/app:z
@@ -30,11 +30,11 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
-    image: radiohound_production_postgres
-    container_name: radiohound_local_postgres
+    image: app_production_postgres
+    container_name: app_local_postgres
     volumes:
-      - radiohound_local_postgres_data:/var/lib/postgresql/data
-      - radiohound_local_postgres_data_backups:/backups
+      - app_local_postgres_data:/var/lib/postgresql/data
+      - app_local_postgres_data_backups:/backups
       - ./compose/production/postgres/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.envs/.local/.postgres
@@ -140,8 +140,8 @@ services:
 
 volumes:
   mongo_data:
-  radiohound_local_postgres_data: {}
-  radiohound_local_postgres_data_backups: {}
+  app_local_postgres_data: {}
+  app_local_postgres_data_backups: {}
 
 networks:
   node-network:
