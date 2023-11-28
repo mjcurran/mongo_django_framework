@@ -1,0 +1,24 @@
+whitenoise==6.5.0  # https://github.com/evansd/whitenoise
+redis==5.0.0  # https://github.com/redis/redis-py
+hiredis==2.2.3  # https://github.com/redis/hiredis-py
+ipdb==0.13.13  # https://github.com/gotcha/ipdb
+psycopg[c]==3.1.9  # https://github.com/psycopg/psycopg
+celery
+flower
+django-crontab
+django-celery-beat
+impacket
+beartype
+typing-extensions
+
+# Django
+# ------------------------------------------------------------------------------
+django==4.2.5  # pyup: < 5.0  # https://www.djangoproject.com/
+django-environ==0.11.2  # https://github.com/joke2k/django-environ
+django-model-utils==4.3.1  # https://github.com/jazzband/django-model-utils
+django-allauth==0.56.1  # https://github.com/pennersr/django-allauth
+django-crispy-forms==2.0  # https://github.com/django-crispy-forms/django-crispy-forms
+pymongo==3.11.4
+dnspython
+python-engineio==4.2.0
+python-socketio==5.3.0

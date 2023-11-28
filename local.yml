@@ -1,0 +1,152 @@
+version: '3.8'
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: django_radiohound
+    command: /start
+    volumes:
+      - .:/app:z
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    environment:
+      - DJANGO_APP=app
+      - MONGO_URI=mongodb://django:vogqx496RjrJ@mongo:27017/
+    networks:
+      - node-network
+      - celery
+      - backend
+    depends_on:
+      - redis
+      - mongo
+      - postgres
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: radiohound_production_postgres
+    container_name: radiohound_local_postgres
+    volumes:
+      - radiohound_local_postgres_data:/var/lib/postgresql/data
+      - radiohound_local_postgres_data_backups:/backups
+      - ./compose/production/postgres/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./.envs/.local/.postgres
+    networks:
+      - backend
+
+  mongo:
+    image: mongo:6-jammy
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+      - ./compose/local/mongodb:/docker-entrypoint-initdb.d/
+      - ./compose/local/mongodb/data:/tmp/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=django
+      - MONGO_INITDB_ROOT_PASSWORD=vogqx496RjrJ
+    networks:
+      - node-network
+
+  mongo-express:
+    image: mongo-express:1.0.0-20
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: django
+      ME_CONFIG_MONGODB_ADMINPASSWORD: vogqx496RjrJ
+      ME_CONFIG_MONGODB_URL: mongodb://django:vogqx496RjrJ@mongo:27017/
+    depends_on:
+      - mongo
+    networks:
+      - node-network
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - celery
+
+  celery_worker:
+    <<: *django
+    image: django_celery_worker
+    command: /start-celeryworker
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    environment:
+      - DJANGO_APP=app
+    depends_on:
+      - redis
+      - mongo
+      - postgres
+    ports: []
+    networks:
+      - celery
+      - backend
+      - node-network
+
+  celery_beat:
+    <<: *django
+    image: django_celery_beat
+    command: /start-celerybeat
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    environment:
+      - DJANGO_APP=app
+    depends_on:
+      - redis
+      - mongo
+      - postgres
+    ports: []
+    networks:
+      - celery
+      - backend
+      - node-network
+
+  flower:
+    <<: *django
+    image: django_celery_flower
+    command: /start-flower
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    environment:
+      - DJANGO_APP=app
+    ports:
+      - 5557:5555
+    depends_on:
+      - redis
+      - mongo
+      - postgres
+    networks:
+      - celery
+      - backend
+      - node-network
+
+volumes:
+  mongo_data:
+  radiohound_local_postgres_data: {}
+  radiohound_local_postgres_data_backups: {}
+
+networks:
+  node-network:
+    driver: bridge
+  celery:
+    name: djangocog_celery
+  backend:
+    name: djangocog_backend
