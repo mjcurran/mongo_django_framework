@@ -25,6 +25,13 @@ if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
     env.read_env(str(BASE_DIR / ".env"))
 
+# POSTGRES_HOST = env("POSTGRES_HOST")
+# POSTGRES_USER = env("POSTGRES_USER")
+# POSTGRES_PASSWORD = env("POSTGRES_PASSWORD")
+# POSTGRES_DB = env("POSTGRES_DB")
+# POSTGRES_PORT = env.int("POSTGRES_PORT")
+# DATABASE_URL=f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -40,6 +47,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'rh_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -78,7 +87,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
+""" CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+} """
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
