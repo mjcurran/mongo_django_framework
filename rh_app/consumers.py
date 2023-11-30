@@ -2,6 +2,7 @@ import json
 from utils import get_db_handle
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from .tasks import add_message
 """ 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -53,16 +54,17 @@ class ChatConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         print("Websockets receive")
-        handle, client = get_db_handle(db_name="radiohound",
-                                       host="mongo",
-                                       port=27017,
-                                       username="django",
-                                       password="vogqx496RjrJ")
+        # handle, client = get_db_handle(db_name="radiohound",
+        #                                host="mongo",
+        #                                port=27017,
+        #                                username="django",
+        #                                password="vogqx496RjrJ")
         text_data_json = json.loads(text_data)
-        print(text_data_json)
-        collection = handle['messages']
-        result = collection.insert_one(text_data_json)
-        print("result: ", result)
+        #print(text_data_json)
+        # collection = handle['messages']
+        # result = collection.insert_one(text_data_json)
+        # print("result: ", result)
+        add_message.apply_async(args=[text_data])
         message = text_data_json["message"]
 
         self.send(text_data=json.dumps({"message": "received: " + message}))
